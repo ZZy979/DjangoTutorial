@@ -7,7 +7,6 @@ from django.utils import timezone
 from .models import Question
 
 
-# Create your tests here.
 class QuestionModelTests(TestCase):
 
     def test_was_published_recently_with_future_question(self):
@@ -59,11 +58,11 @@ class QuestionIndexViewTests(TestCase):
 
     def test_past_question(self):
         """Questions with a pub_date in the past are displayed on the index page."""
-        create_question(question_text="Past question.", days=-30)
+        question = create_question(question_text="Past question.", days=-30)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_question_list'],
-            ['<Question: Past question.>']
+            [question],
         )
 
     def test_future_question(self):
@@ -77,22 +76,22 @@ class QuestionIndexViewTests(TestCase):
         """Even if both past and future questions exist, only past questions
         are displayed.
         """
-        create_question(question_text="Past question.", days=-30)
+        question = create_question(question_text="Past question.", days=-30)
         create_question(question_text="Future question.", days=30)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_question_list'],
-            ['<Question: Past question.>']
+            [question],
         )
 
     def test_two_past_questions(self):
         """The questions index page may display multiple questions."""
-        create_question(question_text="Past question 1.", days=-30)
-        create_question(question_text="Past question 2.", days=-5)
+        question1 = create_question(question_text="Past question 1.", days=-30)
+        question2 = create_question(question_text="Past question 2.", days=-5)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_question_list'],
-            ['<Question: Past question 2.>', '<Question: Past question 1.>']
+            [question2, question1],
         )
 
 
